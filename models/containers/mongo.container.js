@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
 const DB_CFG = require('../../config/db.config')
-const { STATUS } = require('../../utils/constants/httpStatus.constant')
+const STATUS = require('../../utils/constants/httpStatus.constant')
 const CustomError = require('../../utils/errors/customError')
 
 class MongoContainer {
@@ -109,8 +109,10 @@ class MongoContainer {
       return newDocumentSaved
     } catch (error) {
       const { password, ...cleanedPayload } = payload
-      throw new Error(
-        `Error occurred while trying to save document: ${JSON.stringify(cleanedPayload)}, ${error}`
+      throw new CustomError(
+        STATUS.NOT_FOUND,
+        `Error occurred while trying to save document: ${JSON.stringify(cleanedPayload)}`,
+        error.message
       )
     }
   }
@@ -119,15 +121,15 @@ class MongoContainer {
     try {
       if (!mongoose.isValidObjectId(id))
         throw new CustomError(
-          STATUS.SERVER_ERROR,
+          STATUS.NOT_FOUND,
           'Failed validation\'s id',
           `MongoDB's ${id} is not a valid ObjectId`
         )
 
       const updatedDocument = await this.Model.updateOne({ _id: id }, { $set: { ...payload } })
-      if (!updatedDocument.matchedCount)
+      if (!updatedDocument.modifiedCount)
         throw new CustomError(
-          STATUS.SERVER_ERROR,
+          STATUS.NOT_FOUND,
           'Document could not been updated',
           `MongoDB's document with id: ${id} could not been found!`
         )
@@ -137,7 +139,7 @@ class MongoContainer {
       throw new CustomError(
         STATUS.SERVER_ERROR,
         `Error occurred while trying to update document with id: ${id}`,
-        error
+        error.message ? error.message : ''
       )
     }
   }

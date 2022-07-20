@@ -12,4 +12,5 @@ const CONFIG = {
   HOST: process.env.HOST,
   PORT: process.env.PORT
 }
-export default CONFIG
+
+module.exports = CONFIG

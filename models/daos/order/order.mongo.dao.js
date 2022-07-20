@@ -1,7 +1,7 @@
 const { Schema } = require('mongoose')
 const MongoContainer = require('../../containers/mongo.container')
 const CustomError = require('../../../utils/errors/customError')
-const { STATUS } = require('../../../utils/constants/httpStatus.constant')
+const STATUS = require('../../../utils/constants/httpStatus.constant')
 
 const OrderSchema = new Schema({
   orderNumber: { required: true, type: Number },

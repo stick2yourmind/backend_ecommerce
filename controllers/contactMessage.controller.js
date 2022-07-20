@@ -1,5 +1,5 @@
 const { apiSuccessResponse } = require('../utils/api.utils')
-const { STATUS } = require('../utils/constants/httpStatus.constant')
+const STATUS = require('../utils/constants/httpStatus.constant')
 const { getContactMessageByIdService, createContactMessageService, deleteContactMessageService, getAllContactMessagesService } = require('../services/contactMessage/contactMessage.service')
 
 const getAllContactMessages = async (req, res, next) => {

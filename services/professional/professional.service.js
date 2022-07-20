@@ -1,6 +1,6 @@
 const DaosFactory = require('../../models/daos/factory.daos')
 const CustomError = require('../../utils/errors/customError')
-const { STATUS } = require('../../utils/constants/httpStatus.constant')
+const STATUS = require('../../utils/constants/httpStatus.constant')
 
 const ProfessionalDao = DaosFactory.getDaos('professional').ProfessionalDao
 

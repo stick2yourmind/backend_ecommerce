@@ -1,5 +1,5 @@
-import CONFIG from './config/server.config.js'
-import express from 'express'
+const CONFIG = require('./config/server.config.js')
+const express = require('express')
 const appRouter = require('./routers/app.router')
 const cors = require('cors')
 const corsOptions = require('./utils/cors/cors.utils')
@@ -23,11 +23,11 @@ app.use(cors(corsOptions))
 // Routes
 app.use('/', appRouter)
 
-const server = app.listen(CONFIG.PORT, () => {
+const server = app.listen(CONFIG.PORT, CONFIG.HOST, () => {
   console.log(`Server is up and running on port => ${CONFIG.PORT}`)
 })
 
-server.on('error', (error:Error) => {
+server.on('error', (error) => {
   console.log('There was an unexpected error in the server')
   console.log(error)
 })

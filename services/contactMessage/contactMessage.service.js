@@ -1,6 +1,6 @@
 const DaosFactory = require('../../models/daos/factory.daos')
 const CustomError = require('../../utils/errors/customError')
-const { STATUS } = require('../../utils/constants/httpStatus.constant')
+const STATUS = require('../../utils/constants/httpStatus.constant')
 const pug = require('pug')
 const path = require('path')
 const { mailOptions, transporter } = require('../../utils/email/email.utils')

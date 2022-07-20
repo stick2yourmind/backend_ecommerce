@@ -1,5 +1,5 @@
 const { apiFailedResponse } = require('../utils/api.utils')
-const { STATUS } = require('../utils/constants/httpStatus.constant')
+const STATUS = require('../utils/constants/httpStatus.constant')
 const { warnLogger } = require('../utils/logger/config.logger')
 
 const notFoundMiddleware = (req, res, next) => {

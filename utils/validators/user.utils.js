@@ -20,6 +20,8 @@ UserSchema.pre('save', function (next) {
   next()
 })
 
+const isDeleteValid = (email) => emailRegex.test(email)
+
 const isValidLogin = (email, password) => {
   const isEmailValid = emailRegex.test(email)
   if (!isEmailValid || password === undefined || !password?.length)
@@ -44,6 +46,7 @@ const isValidPassword = (password, encriptedPassword) =>
 
 module.exports = {
   UserSchema,
+  isDeleteValid,
   isValidLogin,
   isValidPassword,
   isValidRegister
