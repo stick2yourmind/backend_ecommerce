@@ -42,22 +42,19 @@ class MongoContainer {
     }
   }
 
+  async isValidId (id) {
+    return mongoose.isValidObjectId(id)
+  }
+
   async getAll () {
     try {
-      const documents = await this.Model.find({}, { __v: 0 }).lean()
-      if (Array.isArray(documents) && !documents.length)
-        throw new CustomError(
-          STATUS.SERVER_ERROR,
-          'Error occurred while trying to get all documents from db',
-          'No documents where found'
-        )
-
+      const documents = await this.Model.find({}, { __v: 0, createdAt: 0, updatedAt: 0 }).lean()
       return documents
     } catch (error) {
       throw new CustomError(
         STATUS.SERVER_ERROR,
         'Error occurred while trying to get all documents from db',
-        error
+        error.message ? error.message : ''
       )
     }
   }
@@ -68,8 +65,8 @@ class MongoContainer {
       if (!mongoose.isValidObjectId(id))
         throw new CustomError(
           STATUS.SERVER_ERROR,
-          'Failed validation\'s id',
-        `MongoDB's ${id} is not a valid ObjectId`
+          `MongoDB's ${id} is not a valid ObjectId`,
+          ''
         )
 
       if (populateColl)
@@ -81,8 +78,8 @@ class MongoContainer {
     } catch (error) {
       throw new CustomError(
         STATUS.SERVER_ERROR,
-        `Error occurred while trying to get a document from db by id:${id}`,
-        error
+        `Error occurred while trying to get a document with id: ${id}`,
+        error.message ? error.message : ''
       )
     }
   }
@@ -96,8 +93,8 @@ class MongoContainer {
     } catch (error) {
       throw new CustomError(
         STATUS.SERVER_ERROR,
-        `Error occurred while trying to get a document from db by ${key}:${value}`,
-        error
+        'Error occurred while trying to get a document',
+        error.message ? error.message : ''
       )
     }
   }
@@ -122,16 +119,16 @@ class MongoContainer {
       if (!mongoose.isValidObjectId(id))
         throw new CustomError(
           STATUS.NOT_FOUND,
-          'Failed validation\'s id',
-          `MongoDB's ${id} is not a valid ObjectId`
+          `MongoDB's ${id} is not a valid ObjectId`,
+          ''
         )
 
       const updatedDocument = await this.Model.updateOne({ _id: id }, { $set: { ...payload } })
       if (!updatedDocument.modifiedCount)
         throw new CustomError(
           STATUS.NOT_FOUND,
-          'Document could not been updated',
-          `MongoDB's document with id: ${id} could not been found!`
+          `MongoDB's document with id: ${id} could not been found!`,
+          ''
         )
 
       return updatedDocument
@@ -149,24 +146,24 @@ class MongoContainer {
       if (!mongoose.isValidObjectId(id))
         throw new CustomError(
           STATUS.SERVER_ERROR,
-          'Failed validation\'s id',
-          `MongoDB's ${id} is not a valid ObjectId`
+          `MongoDB's ${id} is not a valid ObjectId`,
+          ''
         )
 
       const deletedDocument = await this.Model.deleteOne({ _id: id })
       if (!deletedDocument.deletedCount)
         throw new CustomError(
           STATUS.SERVER_ERROR,
-          'Document could not been deleted',
-          `MongoDB's document with id: ${id} could not been found!`
+          `MongoDB's document with id: ${id} could not been found!`,
+          ''
         )
 
       return deletedDocument
     } catch (error) {
       throw new CustomError(
         STATUS.SERVER_ERROR,
-        `Error occurred while trying to delete document with id: ${id}`,
-        error
+        `Error occurred while trying to delete a document with id: ${id}`,
+        error.message ? error.message : ''
       )
     }
   }

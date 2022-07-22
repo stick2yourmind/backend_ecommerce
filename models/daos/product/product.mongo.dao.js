@@ -6,7 +6,8 @@ const ProductSchema = new Schema({
   description: { required: true, type: String },
   name: { required: true, type: String },
   photo: { required: true, type: String, unique: true },
-  price: { required: true, type: Number }
+  price: { required: true, type: Number },
+  stock: { required: true, type: Number }
 }, { timestamps: true })
 
 class MongoProductDao extends MongoContainer {
