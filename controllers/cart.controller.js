@@ -54,8 +54,8 @@ const getCart = async (req, res, next) => {
 const addProductToCart = async (req, res, next) => {
   try {
     const { id } = req.params
-    const { itemId, quantity } = req.body
-    const getMsg = await addProductToCartService(id, { itemId, quantity })
+    const { productId, quantity } = req.body
+    const getMsg = await addProductToCartService(id, { productId, quantity }, 'products')
     const response = apiSuccessResponse(getMsg, STATUS.OK)
     return res.status(STATUS.OK).json(response)
   } catch (error) {

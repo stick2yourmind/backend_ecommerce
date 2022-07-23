@@ -1,8 +1,11 @@
 const DaosFactory = require('../../models/daos/factory.daos')
 const CustomError = require('../../utils/errors/customError')
 const STATUS = require('../../utils/constants/httpStatus.constant')
+const { isCreateCartValid, isAddProductToCartValid } = require('../../utils/validators/cart.utils')
 
 const CartDao = DaosFactory.getDaos('cart').CartDao
+const ProductDao = DaosFactory.getDaos('product').ProductDao
+const UserDao = DaosFactory.getDaos('user').UserDao
 
 /**
  * Creates a cart.
@@ -12,6 +15,10 @@ const CartDao = DaosFactory.getDaos('cart').CartDao
  */
 const createCartService = async ({ userId, checkoutAddress }) => {
   try {
+    if (!isCreateCartValid({ checkoutAddress, userId }))
+      throw new CustomError(STATUS.BAD_REQUEST,
+        'Missing or invalid: checkoutAddress or userId', '')
+    await UserDao.getById(userId)
     const data = await CartDao.create({ checkoutAddress, products: [], user: userId })
     return {
       _id: data._id
@@ -19,7 +26,7 @@ const createCartService = async ({ userId, checkoutAddress }) => {
   } catch (error) {
     throw new CustomError(
       error.status || STATUS.SERVER_ERROR,
-      'Error occurred on service while trying to create a product',
+      'Error occurred on service while trying to create a cart',
       error.message + (error.details ? ` --- ${error.details}` : '')
     )
   }
@@ -36,7 +43,7 @@ const getAllCartService = async () => {
   } catch (error) {
     throw new CustomError(
       error.status || STATUS.SERVER_ERROR,
-      'Error occurred on service while trying to get all products',
+      'Error occurred on service while trying to get all carts',
       error.message + (error.details ? ` --- ${error.details}` : '')
     )
   }
@@ -64,7 +71,7 @@ const getCartService = async (id) => {
   } catch (error) {
     throw new CustomError(
       error.status || STATUS.SERVER_ERROR,
-      'Error occurred on service while trying to get a product',
+      'Error occurred on service while trying to get a cart',
       error.message + (error.details ? ` --- ${error.details}` : '')
     )
   }
@@ -82,7 +89,7 @@ const deleteCartService = async (id) => {
   } catch (error) {
     throw new CustomError(
       error.status || STATUS.SERVER_ERROR,
-      'Error occurred on service while trying to delete a product',
+      'Error occurred on service while trying to delete a cart',
       error.message + (error.details ? ` --- ${error.details}` : '')
     )
   }
@@ -99,9 +106,13 @@ const deleteCartService = async (id) => {
  *    user: string
  *  }}
  */
-const addProductToCartService = async (id, { itemId, quantity }) => {
+const addProductToCartService = async (id, { productId, quantity }) => {
   try {
-    const data = await CartDao.addProductToCart(id, { itemId, quantity })
+    if (!isAddProductToCartValid({ productId, quantity }))
+      throw new CustomError(STATUS.BAD_REQUEST,
+        'Missing or invalid: productId or quantity', '')
+    await ProductDao.getById(productId)
+    const data = await CartDao.addProductToCart(id, { productId, quantity })
     return {
       _id: data._id,
       checkoutAddress: data.checkoutAddress,
@@ -111,7 +122,7 @@ const addProductToCartService = async (id, { itemId, quantity }) => {
   } catch (error) {
     throw new CustomError(
       error.status || STATUS.SERVER_ERROR,
-      'Error occurred on service while trying to update a product',
+      'Error occurred on service while trying to update a cart',
       error.message + (error.details ? ` --- ${error.details}` : '')
     )
   }

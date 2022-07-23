@@ -64,7 +64,7 @@ class MongoContainer {
       let document = {}
       if (!mongoose.isValidObjectId(id))
         throw new CustomError(
-          STATUS.SERVER_ERROR,
+          STATUS.BAD_REQUEST,
           `MongoDB's ${id} is not a valid ObjectId`,
           ''
         )
@@ -73,11 +73,15 @@ class MongoContainer {
         document = await this.Model.findOne({ _id: id }, { __v: 0 })
           .populate(populateColl, fields)
       else document = await this.Model.findOne({ _id: id }, { __v: 0 })
-      if (!document) throw new Error(`MongoDB document with id: ${id} could not be found!`)
+      if (!document) throw new CustomError(
+        STATUS.NOT_FOUND,
+        `MongoDB document with id: ${id} could not be found!`,
+        ''
+      )
       return document
     } catch (error) {
       throw new CustomError(
-        STATUS.SERVER_ERROR,
+        error.status || STATUS.SERVER_ERROR,
         `Error occurred while trying to get a document with id: ${id}`,
         error.message ? error.message : ''
       )
@@ -88,11 +92,15 @@ class MongoContainer {
     try {
       const document = await this.Model.find({ [key]: value }, { __v: 0 })
       if (!document)
-        throw new Error(`MongoDB document with key: ${key} value: ${value}could not be found!`)
+        throw new CustomError(
+          STATUS.NOT_FOUND,
+          `MongoDB document with key, value: ${key}, ${value} could not be found!`,
+          ''
+        )
       return document
     } catch (error) {
       throw new CustomError(
-        STATUS.SERVER_ERROR,
+        error.status || STATUS.SERVER_ERROR,
         'Error occurred while trying to get a document',
         error.message ? error.message : ''
       )
