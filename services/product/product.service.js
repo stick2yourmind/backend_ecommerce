@@ -6,16 +6,7 @@ const { isValidProduct } = require('../../utils/validators/product.utils')
 const ProductDao = DaosFactory.getDaos('product').ProductDao
 
 /**
- * Creates a product at database
- *
- * @param {string} category
- * @param {string} description
- * @param {string} name
- * @param {string} photo
- * @param {number} price
- * @param {number} stock
-/**
- *
+ * Creates a product at DB.
  *
  * @param {object} { category: string, description:string, name, photo, price, stock }
  * @return {object} {created: true} if creation was successful

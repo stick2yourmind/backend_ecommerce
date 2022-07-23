@@ -1,11 +1,5 @@
-const { Schema } = require('mongoose')
+const { MessageSchema } = require('../../../utils/validators/message.utils')
 const MongoContainer = require('../../containers/mongo.container')
-
-const MessageSchema = new Schema({
-  message: { required: true, type: String },
-  type: { required: true, type: String }, // "user" or "system"
-  user: { ref: 'users', required: true, type: Schema.Types.ObjectId }
-}, { timestamps: true })
 
 class MongoMessageDao extends MongoContainer {
   constructor () {

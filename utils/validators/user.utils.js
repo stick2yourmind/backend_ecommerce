@@ -7,12 +7,11 @@ const createHash = password => bcrypt.hashSync(password, salt())
 
 const UserSchema = new Schema({
   address: { required: true, type: String },
-  // birthDate: { required: true, type: Date },
   email: { required: true, type: String, unique: true },
   isAdmin: { default: false, required: true, type: Boolean },
   name: { required: true, type: String },
   password: { required: true, type: String },
-  phone: { required: true, type: Number, unique: true }
+  phone: { required: true, type: Number }
 }, { timestamps: true })
 
 UserSchema.pre('save', function (next) {
