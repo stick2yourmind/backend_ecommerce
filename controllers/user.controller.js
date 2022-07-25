@@ -1,8 +1,10 @@
+const JWT_CFG = require('../config/jwt.config')
 const { apiSuccessResponse } = require('../utils/api.utils')
 const STATUS = require('../utils/constants/httpStatus.constant')
 const {
   loginUserService, registerUserService,
-  deleteUserService, updateUserService
+  deleteUserService, updateUserService,
+  refreshLoginService
 } = require('../services/user/user.service')
 
 const registerUser = async (req, res, next) => {
@@ -20,13 +22,29 @@ const loginUser = async (req, res, next) => {
   try {
     const { email, password } = req.body
     const loginMsg = await loginUserService(email, password)
-    const response = apiSuccessResponse(loginMsg, STATUS.OK)
+    const { refreshToken, ...data } = loginMsg
+    res.cookie('refreshToken', refreshToken,
+      { httpOnly: true, maxAge: JWT_CFG.EXPIRES_REFRESH_TOKEN_MILLISECONDS })
+    const response = apiSuccessResponse(data, STATUS.OK)
     return res.status(STATUS.OK).json(response)
   } catch (error) {
     next(error)
   }
 }
 
+const refreshLogin = async (req, res, next) => {
+  try {
+    const refreshTokenCookie = req?.cookies?.refreshToken
+    const loginMsg = await refreshLoginService(refreshTokenCookie)
+    const { refreshToken, ...data } = loginMsg
+    res.cookie('refreshToken', refreshToken,
+      { httpOnly: true, maxAge: JWT_CFG.EXPIRES_REFRESH_TOKEN_MILLISECONDS })
+    const response = apiSuccessResponse(data, STATUS.OK)
+    return res.status(STATUS.OK).json(response)
+  } catch (error) {
+    next(error)
+  }
+}
 const deleteUser = async (req, res, next) => {
   try {
     const { email } = req.body
@@ -53,6 +71,7 @@ const updateUser = async (req, res, next) => {
 module.exports = {
   deleteUser,
   loginUser,
+  refreshLogin,
   registerUser,
   updateUser
 }

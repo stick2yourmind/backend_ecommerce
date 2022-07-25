@@ -1,3 +1,5 @@
+const jwt = require('jsonwebtoken')
+const JWT_CFG = require('../../config/jwt.config')
 const DaosFactory = require('../../models/daos/factory.daos')
 const CustomError = require('../../utils/errors/customError')
 const STATUS = require('../../utils/constants/httpStatus.constant')
@@ -22,13 +24,96 @@ const loginUserService = async (email, password) => {
     const data = await UserDao.getByEmail(email)
     if (!isValidPassword(password, data.password))
       throw new CustomError(STATUS.UNAUTHORIZED, 'Missing or invalid: email or password', '')
+    const accessToken = jwt.sign(
+      { emailUser: data.email },
+      JWT_CFG.ACCESS_TOKEN_SECRET,
+      { expiresIn: JWT_CFG.EXPIRES_ACCESS_TOKEN }
+    )
+    const refreshToken = jwt.sign(
+      { emailUser: data.email },
+      JWT_CFG.REFRESH_TOKEN_SECRET,
+      { expiresIn: JWT_CFG.EXPIRES_REFRESH_TOKEN }
+    )
+    await UserDao.updateByEmail(email, { refreshToken })
     return {
       _id: data._id,
+      accessToken,
       address: data.address,
       email: data.email,
       logged: true,
       name: data.name,
-      phone: data.phone
+      phone: data.phone,
+      refreshToken
+    }
+  } catch (error) {
+    throw new CustomError(
+      error.status || STATUS.UNAUTHORIZED,
+      'Error occurred on service while trying to login an user',
+      error.message + (error.details ? ` --- ${error.details}` : '')
+    )
+  }
+}
+
+const refreshLoginService = async (refreshTokenCookie) => {
+  console.log('🚀 ~ file: user.service.js ~ line 58 ~ refreshLoginService ~ refreshTokenCookie', refreshTokenCookie)
+  try {
+    if (!refreshTokenCookie)
+      throw new CustomError(STATUS.UNAUTHORIZED, 'Missing refresh token', '')
+    // jwt.verify throw an error if signature is invalid
+    const decoded = await jwt.verify(
+      refreshTokenCookie,
+      JWT_CFG.REFRESH_TOKEN_SECRET
+      // async (error, decoded) => {
+      //   const data = await UserDao.getByEmail(decoded.emailUser)
+      //   console.log('🚀 ~ file: user.service.js ~ line 66 ~ data.refreshToken', data.refreshToken)
+      //   if (error || data.refreshToken !== refreshTokenCookie)
+      //     throw new CustomError(STATUS.FORBIDDEN, 'Invalid refreshToken token', '')
+      //   const accessToken = jwt.sign(
+      //     { emailUser: data.email },
+      //     JWT_CFG.ACCESS_TOKEN_SECRET,
+      //     { expiresIn: JWT_CFG.EXPIRES_ACCESS_TOKEN }
+      //   )
+      //   const refreshToken = jwt.sign(
+      //     { emailUser: data.email },
+      //     JWT_CFG.REFRESH_TOKEN_SECRET,
+      //     { expiresIn: JWT_CFG.EXPIRES_REFRESH_TOKEN }
+      //   )
+      //   const user = UserDao.updateByEmail(data.email, { refreshToken }).then(user => user)
+      //   return {
+      //     _id: user._id,
+      //     accessToken,
+      //     address: user.address,
+      //     email: user.email,
+      //     name: user.name,
+      //     phone: user.phone,
+      //     refreshToken,
+      //     refreshed: true
+      //   }
+      // }
+    )
+    const data = await UserDao.getByEmail(decoded.emailUser)
+    if (data.refreshToken !== refreshTokenCookie)
+      throw new CustomError(STATUS.FORBIDDEN, 'Invalid refresh token', '')
+    const accessToken = jwt.sign(
+      { emailUser: data.email },
+      JWT_CFG.ACCESS_TOKEN_SECRET,
+      { expiresIn: JWT_CFG.EXPIRES_ACCESS_TOKEN }
+    )
+    const refreshToken = jwt.sign(
+      { emailUser: data.email },
+      JWT_CFG.REFRESH_TOKEN_SECRET,
+      { expiresIn: JWT_CFG.EXPIRES_REFRESH_TOKEN }
+    )
+    const user = UserDao.updateByEmail(data.email, { refreshToken }).then(user => user)
+    return {
+      _id: user._id,
+      accessToken,
+      address: user.address,
+      email: user.email,
+      name: user.name,
+      phone: user.phone,
+      refreshToken,
+      refreshed: true
     }
   } catch (error) {
     throw new CustomError(
@@ -132,6 +217,7 @@ const updateUserService = async (id, address, email, name, password, phone) => {
 module.exports = {
   deleteUserService,
   loginUserService,
+  refreshLoginService,
   registerUserService,
   updateUserService
 }

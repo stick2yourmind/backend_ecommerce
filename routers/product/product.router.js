@@ -1,4 +1,5 @@
 const { Router } = require('express')
+const verifyAuth = require('../../middleware/auth.middleware')
 const {
   createProduct,
   deleteProduct,
@@ -13,10 +14,10 @@ router.get('/', getAll)
 
 router.get('/:id', getProduct)
 
-router.post('/', createProduct)
+router.post('/', verifyAuth, createProduct)
 
-router.delete('/:id', deleteProduct)
+router.delete('/:id', verifyAuth, deleteProduct)
 
-router.put('/:id', updateProduct)
+router.put('/:id', verifyAuth, updateProduct)
 
 module.exports = router

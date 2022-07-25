@@ -11,7 +11,8 @@ const UserSchema = new Schema({
   isAdmin: { default: false, required: true, type: Boolean },
   name: { required: true, type: String },
   password: { required: true, type: String },
-  phone: { required: true, type: Number }
+  phone: { required: true, type: Number },
+  refreshToken: { type: String }
 }, { timestamps: true })
 
 UserSchema.pre('save', function (next) {
@@ -21,7 +22,8 @@ UserSchema.pre('save', function (next) {
 })
 UserSchema.pre('updateOne', function (next) {
   // For updateOne & deleteOne 'this' refers to a query, not a document
-  this._update.$set.password = createHash(this._update.$set.password)
+  if (this._update.$set.password !== undefined)
+    this._update.$set.password = createHash(this._update.$set.password)
   next()
 })
 
