@@ -34,8 +34,6 @@ class MongoOrderDao extends MongoContainer {
     try {
       const lastDocument = await this.Model.find({}, { __v: 0 })
         .sort({ createdAt: -1 }).limit(1).lean()
-      console.log('lastDocumentLast')
-      console.log(lastDocument)
       if (Object.keys(lastDocument).length)
         return lastDocument[0].orderNumber
       return 0

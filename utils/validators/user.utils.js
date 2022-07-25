@@ -15,7 +15,13 @@ const UserSchema = new Schema({
 }, { timestamps: true })
 
 UserSchema.pre('save', function (next) {
+  // 'this' refers to a document
   this.password = createHash(this.password)
+  next()
+})
+UserSchema.pre('updateOne', function (next) {
+  // For updateOne & deleteOne 'this' refers to a query, not a document
+  this._update.$set.password = createHash(this._update.$set.password)
   next()
 })
 
