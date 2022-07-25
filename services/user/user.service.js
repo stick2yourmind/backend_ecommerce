@@ -55,11 +55,10 @@ const loginUserService = async (email, password) => {
 }
 
 const refreshLoginService = async (refreshTokenCookie) => {
-  console.log('🚀 ~ file: user.service.js ~ line 58 ~ refreshLoginService ~ refreshTokenCookie', refreshTokenCookie)
   try {
     if (!refreshTokenCookie)
       throw new CustomError(STATUS.UNAUTHORIZED, 'Missing refresh token', '')
-    // jwt.verify throw an error if signature is invalid
+    // jwt.verify throws an error if signature is invalid
     const decoded = await jwt.verify(
       refreshTokenCookie,
       JWT_CFG.REFRESH_TOKEN_SECRET
