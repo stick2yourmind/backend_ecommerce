@@ -5,7 +5,8 @@ const {
   deleteProduct,
   getAll,
   getProduct,
-  updateProduct
+  updateProduct,
+  getProductByCategory
 } = require('../../controllers/product.controller')
 
 const router = Router()
@@ -13,6 +14,8 @@ const router = Router()
 router.get('/', getAll)
 
 router.get('/:id', getProduct)
+
+router.get('/category/:category', getProductByCategory)
 
 router.post('/', verifyAuth, createProduct)
 

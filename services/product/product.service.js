@@ -16,6 +16,7 @@ const createProductService = async ({ category, description, name, photo, price,
     if (!isValidProduct({ category, description, name, photo, price, stock }))
       throw new CustomError(STATUS.UNAUTHORIZED,
         'Missing or invalid: category or description or name or photo or price or stock', '')
+    category = category.map(category => category.toLowerCase())
     const data = await ProductDao.create({ category, description, name, photo, price, stock })
     return {
       _id: data._id,
@@ -80,6 +81,24 @@ const getProductService = async (id) => {
   }
 }
 /**
+ * Gets a products from database by its category.
+ *
+ * @param {string} category
+ * @return {object} products
+ */
+const getProductByCategoryService = async (category) => {
+  try {
+    const data = await ProductDao.getByCategory(category)
+    return { products: data }
+  } catch (error) {
+    throw new CustomError(
+      error.status || STATUS.SERVER_ERROR,
+      'Error occurred on service while trying to get a product',
+      error.message + (error.details ? ` --- ${error.details}` : '')
+    )
+  }
+}
+/**
  * Deletes a product by its id
  *
  * @param {string} id
@@ -110,6 +129,7 @@ const updateProductService = async (id, { category, description, name, photo, pr
       throw new CustomError(
         STATUS.UNAUTHORIZED,
         'Missing or invalid:  category or description or name or photo or price or stock', '')
+    category = category.map(category => category.toLowerCase())
     await ProductDao.updateById(id, { category, description, name, photo, price, stock })
     const data = await ProductDao.getById(id)
     return {
@@ -134,6 +154,7 @@ module.exports = {
   createProductService,
   deleteProductService,
   getAllProductService,
+  getProductByCategoryService,
   getProductService,
   updateProductService
 }

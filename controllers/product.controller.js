@@ -5,7 +5,8 @@ const {
   deleteProductService,
   getAllProductService,
   getProductService,
-  updateProductService
+  updateProductService,
+  getProductByCategoryService
 } = require('../services/product/product.service')
 
 const createProduct = async (req, res, next) => {
@@ -58,12 +59,30 @@ const getProduct = async (req, res, next) => {
   }
 }
 
+const getProductByCategory = async (req, res, next) => {
+  try {
+    const { category } = req.params
+    const getMsg = await getProductByCategoryService(category)
+    const response = apiSuccessResponse(getMsg, STATUS.OK)
+    return res.status(STATUS.OK).json(response)
+  } catch (error) {
+    next(error)
+  }
+}
+
 const updateProduct = async (req, res, next) => {
   try {
     const { id } = req.params
     const { category, description, name, photo, price, stock } = req.body
     const getMsg = await updateProductService(id,
-      { category, description, name, photo, price, stock })
+      {
+        category,
+        description,
+        name,
+        photo,
+        price,
+        stock
+      })
     const response = apiSuccessResponse(getMsg, STATUS.OK)
     return res.status(STATUS.OK).json(response)
   } catch (error) {
@@ -76,5 +95,6 @@ module.exports = {
   deleteProduct,
   getAll,
   getProduct,
+  getProductByCategory,
   updateProduct
 }
