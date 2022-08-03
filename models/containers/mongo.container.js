@@ -115,7 +115,7 @@ class MongoContainer {
     } catch (error) {
       const { password, ...cleanedPayload } = payload
       throw new CustomError(
-        STATUS.NOT_FOUND,
+        STATUS.BAD_REQUEST,
         `Error occurred while trying to save document: ${JSON.stringify(cleanedPayload)}`,
         error.message
       )

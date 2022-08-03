@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken')
 const JWT_CFG = require('../../config/jwt.config')
+const ROLE_CFG = require('../../config/roles.config')
 const DaosFactory = require('../../models/daos/factory.daos')
 const CustomError = require('../../utils/errors/customError')
 const STATUS = require('../../utils/constants/httpStatus.constant')
@@ -43,7 +44,8 @@ const loginUserService = async (email, password) => {
       logged: true,
       name: data.name,
       phone: data.phone,
-      refreshToken
+      refreshToken,
+      role: data.isAdmin ? ROLE_CFG.ADMIN : ROLE_CFG.USER
     }
   } catch (error) {
     throw new CustomError(
