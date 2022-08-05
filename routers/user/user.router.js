@@ -4,11 +4,14 @@ const {
   loginUser,
   deleteUser,
   updateUser,
-  refreshLogin
+  refreshLogin,
+  logoutUser
 } = require('../../controllers/user.controller')
 const verifyAuth = require('../../middleware/auth.middleware')
 
 const router = Router()
+
+router.get('/logout', logoutUser)
 
 router.get('/refresh', refreshLogin)
 

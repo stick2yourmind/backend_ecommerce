@@ -22,6 +22,29 @@ const UserDao = DaosFactory.getDaos('user').UserDao
  * @param {string} password - Raw user's password
  * @return {object} {logged: true} if login was successful
  */
+const logoutUserService = async ({ refreshTokenCookie, userCookie }) => {
+  try {
+    const data = await UserDao.getById(userCookie)
+    const isValidLogout = data.refreshToken === refreshTokenCookie
+    if (isValidLogout)
+      await UserDao.updateById(userCookie, { refreshToken: '' })
+    return { isValidLogout }
+  } catch (error) {
+    throw new CustomError(
+      error.status || STATUS.UNAUTHORIZED,
+      'Error occurred on service while trying to logout an user',
+      error.message + (error.details ? ` --- ${error.details}` : '')
+    )
+  }
+}
+
+/**
+ * Returns true if logins if succesfull.
+ *
+ * @param {string} email - User's email
+ * @param {string} password - Raw user's password
+ * @return {object} {logged: true} if login was successful
+ */
 const loginUserService = async (email, password) => {
   try {
     if (!isValidLogin(email, password))
@@ -225,6 +248,7 @@ const updateUserService = async (id, address, email, name, password, phone) => {
 module.exports = {
   deleteUserService,
   loginUserService,
+  logoutUserService,
   refreshLoginService,
   registerUserService,
   updateUserService

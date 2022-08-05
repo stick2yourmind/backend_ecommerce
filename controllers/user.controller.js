@@ -4,7 +4,7 @@ const STATUS = require('../utils/constants/httpStatus.constant')
 const {
   loginUserService, registerUserService,
   deleteUserService, updateUserService,
-  refreshLoginService
+  refreshLoginService, logoutUserService
 } = require('../services/user/user.service')
 const CONFIG = require('../config/server.config')
 
@@ -24,12 +24,27 @@ const loginUser = async (req, res, next) => {
     const { email, password } = req.body
     const loginMsg = await loginUserService(email, password)
     const { refreshToken, ...data } = loginMsg
-    console.log('🚀 ~ file: user.controller.js ~ line 26 ~ loginUser ~ refreshToken', refreshToken)
     res.cookie('refreshToken', refreshToken,
       { httpOnly: true, maxAge: JWT_CFG.EXPIRES_REFRESH_TOKEN_MILLISECONDS })
     res.cookie('user', data._id,
       { httpOnly: true, maxAge: CONFIG.USER_COOKIES_EXPIRES })
     const response = apiSuccessResponse(data, STATUS.OK)
+    return res.status(STATUS.OK).json(response)
+  } catch (error) {
+    next(error)
+  }
+}
+
+const logoutUser = async (req, res, next) => {
+  try {
+    const refreshTokenCookie = req?.cookies?.refreshTokenCookie
+    const userCookie = req?.cookies?.user
+    const logoutMsg = await logoutUserService({ refreshTokenCookie, userCookie })
+    res.clearCookie('refreshToken',
+      { httpOnly: true, maxAge: JWT_CFG.EXPIRES_REFRESH_TOKEN_MILLISECONDS })
+    res.clearCookie('user',
+      { httpOnly: true, maxAge: CONFIG.USER_COOKIES_EXPIRES })
+    const response = apiSuccessResponse({ logout: logoutMsg }, STATUS.OK)
     return res.status(STATUS.OK).json(response)
   } catch (error) {
     next(error)
@@ -75,6 +90,7 @@ const updateUser = async (req, res, next) => {
 module.exports = {
   deleteUser,
   loginUser,
+  logoutUser,
   refreshLogin,
   registerUser,
   updateUser
