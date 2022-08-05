@@ -1,9 +1,13 @@
 const jwt = require('jsonwebtoken')
+const pug = require('pug')
+const path = require('path')
 const JWT_CFG = require('../../config/jwt.config')
 const ROLE_CFG = require('../../config/roles.config')
+const EMAIL_CFG = require('../../config/email.config')
 const DaosFactory = require('../../models/daos/factory.daos')
 const CustomError = require('../../utils/errors/customError')
 const STATUS = require('../../utils/constants/httpStatus.constant')
+const { mailOptions, transporter } = require('../../utils/email/email.utils')
 const {
   isValidLogin, isDeleteValid,
   isValidPassword, isValidRegister
@@ -100,20 +104,13 @@ const refreshLoginService = async (refreshTokenCookie) => {
       JWT_CFG.ACCESS_TOKEN_SECRET,
       { expiresIn: JWT_CFG.EXPIRES_ACCESS_TOKEN }
     )
-    const refreshToken = jwt.sign(
-      { emailUser: data.email },
-      JWT_CFG.REFRESH_TOKEN_SECRET,
-      { expiresIn: JWT_CFG.EXPIRES_REFRESH_TOKEN }
-    )
-    const user = UserDao.updateByEmail(data.email, { refreshToken }).then(user => user)
     return {
-      _id: user._id,
+      _id: data._id,
       accessToken,
-      address: user.address,
-      email: user.email,
-      name: user.name,
-      phone: user.phone,
-      refreshToken,
+      address: data.address,
+      email: data.email,
+      name: data.name,
+      phone: data.phone,
       refreshed: true
     }
   } catch (error) {
@@ -141,6 +138,16 @@ const registerUserService = async (address, email, name, password, phone) => {
         STATUS.UNAUTHORIZED,
         'Missing or invalid: address or email or name or password or phone', '')
     const data = await UserDao.create({ address, email, name, password, phone })
+    const subject = 'Nuevo usuario registrado'
+    const html = pug.renderFile(path.join(__dirname, '../../views/email/newUser.view.pug'), {
+      email: data.email,
+      name: data.name
+    })
+    transporter.sendMail(mailOptions(EMAIL_CFG.EMAIL_REPORTS, subject, html),
+      function (err, info) {
+        if (err) console.log(err)
+        else console.log(info)
+      })
     return {
       _id: data._id,
       address: data.address,

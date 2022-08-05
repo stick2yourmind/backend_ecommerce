@@ -56,7 +56,6 @@ const createOrderService = async (cartId) => {
       products,
       user: cart.user
     }
-    console.info(order)
     const data = await OrderDao.create(order)
     return {
       _id: data._id,

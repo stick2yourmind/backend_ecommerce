@@ -49,6 +49,8 @@ const getAll = async (req, res, next) => {
 }
 
 const getProduct = async (req, res, next) => {
+  console.log('🚀 ~ file: product.controller.js ~ line 53 ~ getProduct ~ req.headers.cookie', req.headers.cookie)
+  console.log('🚀 ~ file: product.controller.js ~ line 53 ~ getProduct ~ req.cookies', req.cookies)
   try {
     const { id } = req.params
     const getMsg = await getProductService(id)

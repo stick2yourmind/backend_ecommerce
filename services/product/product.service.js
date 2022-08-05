@@ -43,8 +43,6 @@ const createProductService = async ({ category, description, name, photo, price,
 const getAllProductService = async () => {
   try {
     const data = await ProductDao.getAll()
-    console.log('data')
-    console.log(data)
     return { products: data }
   } catch (error) {
     throw new CustomError(

@@ -10,7 +10,8 @@ const CONFIG = {
     process.env.ALLOWED_ORIGINS_ALTER
   ],
   HOST: process.env.HOST,
-  PORT: process.env.PORT
+  PORT: process.env.PORT,
+  USER_COOKIES_EXPIRES: process.env.EXPIRES_USER_COOKIE_MILISECONDS
 }
 
 module.exports = CONFIG

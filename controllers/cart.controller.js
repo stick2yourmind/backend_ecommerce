@@ -5,7 +5,9 @@ const {
   createCartService,
   deleteCartService,
   getAllCartService,
-  getCartService
+  getCartService,
+  addAllProductsToCartService,
+  updateShippingCartService
 } = require('../services/cart/cart.service')
 
 const createCart = async (req, res, next) => {
@@ -63,10 +65,37 @@ const addProductToCart = async (req, res, next) => {
   }
 }
 
+const updateShippingCart = async (req, res, next) => {
+  try {
+    const { id } = req.params
+    const { checkoutAddress, pickUp } = req.body
+    const userId = req?.cookies?.user
+    const getMsg = await updateShippingCartService(id, { checkoutAddress, pickUp, userId })
+    const response = apiSuccessResponse(getMsg, STATUS.OK)
+    return res.status(STATUS.OK).json(response)
+  } catch (error) {
+    next(error)
+  }
+}
+
+const addAllProductsToCart = async (req, res, next) => {
+  try {
+    const { products } = req.body
+    const userId = req?.cookies?.user
+    const getMsg = await addAllProductsToCartService(products, userId)
+    const response = apiSuccessResponse(getMsg, STATUS.OK)
+    return res.status(STATUS.OK).json(response)
+  } catch (error) {
+    next(error)
+  }
+}
+
 module.exports = {
+  addAllProductsToCart,
   addProductToCart,
   createCart,
   deleteCart,
   getAllCart,
-  getCart
+  getCart,
+  updateShippingCart
 }

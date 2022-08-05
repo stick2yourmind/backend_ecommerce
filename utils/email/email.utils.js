@@ -2,7 +2,7 @@ const nodemailer = require('nodemailer')
 const EMAIL_CFG = require('../../config/email.config')
 
 const mailOptions = (to, subject, html) => ({
-  from: 'consultorio.dental.mini@gmail.com',
+  from: EMAIL_CFG.ACCOUNT,
   html,
   subject,
   to

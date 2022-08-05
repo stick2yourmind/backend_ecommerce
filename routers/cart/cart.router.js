@@ -4,7 +4,9 @@ const {
   createCart,
   deleteCart,
   getAllCart,
-  getCart
+  getCart,
+  addAllProductsToCart,
+  updateShippingCart
 } = require('../../controllers/cart.controller')
 
 const router = Router()
@@ -17,6 +19,10 @@ router.post('/', createCart)
 
 router.delete('/:id', deleteCart)
 
+router.put('/shipping/:id', updateShippingCart)
+
 router.put('/:id', addProductToCart)
+
+router.post('/products', addAllProductsToCart)
 
 module.exports = router
