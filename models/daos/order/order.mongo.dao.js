@@ -45,6 +45,21 @@ class MongoOrderDao extends MongoContainer {
       )
     }
   }
+
+  async create (payload) {
+    try {
+      const newDocument = new this.Model(payload)
+      const newDocumentSaved = await newDocument.save()
+      return newDocumentSaved
+    } catch (error) {
+      const { password, ...cleanedPayload } = payload
+      throw new CustomError(
+        error.code || STATUS.BAD_REQUEST,
+        `Error occurred while trying to save document: ${JSON.stringify(cleanedPayload)}`,
+        error.message
+      )
+    }
+  }
 }
 
 module.exports = MongoOrderDao

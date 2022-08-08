@@ -59,13 +59,28 @@ const createOrderService = async (cartId) => {
     const data = await OrderDao.create(order)
     return {
       _id: data._id,
+      cartId: data.cartId,
       checkoutAddress: data.checkoutAddress,
       orderNumber: data.orderNumber,
       products: data.products,
+      status: data.status,
       time: data.createdAt,
       user: data.user
     }
   } catch (error) {
+    if (error.status === 11000) {
+      const data = await OrderDao.getBy('cartId', cartId)
+      return {
+        _id: data[0]._id,
+        cartId: data[0].cartId,
+        checkoutAddress: data[0].checkoutAddress,
+        orderNumber: data[0].orderNumber,
+        products: data[0].products,
+        status: data[0].status,
+        time: data[0].createdAt,
+        user: data[0].user
+      }
+    }
     throw new CustomError(
       error.status || STATUS.SERVER_ERROR,
       'Error occurred on service while trying to create a cart',
@@ -119,7 +134,7 @@ const finishOrderService = async (id) => {
   } catch (error) {
     throw new CustomError(
       error.status || STATUS.SERVER_ERROR,
-      'Error occurred on service while trying to update a cart',
+      'Error occurred on service while trying to update an order',
       error.message + (error.details ? ` --- ${error.details}` : '')
     )
   }

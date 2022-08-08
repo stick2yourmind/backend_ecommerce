@@ -11,8 +11,8 @@ const {
 const createOrder = async (req, res, next) => {
   try {
     const { cartId } = req.body
-    const createdContactMessage = await createOrderService(cartId)
-    const response = apiSuccessResponse(createdContactMessage, STATUS.OK)
+    const createdOrder = await createOrderService(cartId)
+    const response = apiSuccessResponse(createdOrder, STATUS.OK)
     return res.status(STATUS.OK).json(response)
   } catch (error) {
     next(error)
