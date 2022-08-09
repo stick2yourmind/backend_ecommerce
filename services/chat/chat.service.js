@@ -1,27 +1,65 @@
 
+const jwt = require('jsonwebtoken')
+const JWT_CFG = require('../../config/jwt.config')
+const ROLE_CFG = require('../../config/roles.config')
 let connections = []
 
 const ioConnection = (io) => {
   io.on('connection', socket => {
-    // console.log('socket.handshake.query: ', socket.handshake.query)
-    // console.log('socket.handshake.headers.cookie', socket.handshake.headers.cookie)
-    // console.log('socket.request.headers.authorization', socket.request.headers.authorization)
-    // console.log('socket id: ', socket.id)
+    const clientId = socket.handshake.query.clientId
+    const accessToken = socket.request?.headers?.authorization?.split(' ')[1] || undefined
+    socket.join(clientId)
     console.log('Nuevo cliente conectado!')
-    connections.push({
-      accessToken: socket.request.headers.authorization?.split(' ')[1] || undefined,
-      clientId: socket.handshake.query.clientId,
-      socketId: socket.id
+    const clientData = {
+      clientId,
+      email: undefined,
+      role: undefined
+    }
+
+    connections.push(clientData)
+
+    socket.on('messages', data => {
+      console.log('messages received', data)
+      io.sockets.emit('messages', data)
     })
-    console.log('connections: ', connections)
-    socket.on('msgToServer', data => {
-      console.log('msgToServer received', data)
-      io.sockets.emit('msgToClient', 'Buenas')
+    socket.on('privateMessages', data => {
+      console.log(data)
+      socket.broadcast.to(data.room).emit('privateMessages', data.msg)
     })
+
+    try {
+      if (accessToken) {
+        console.log('tiene accessToken: ', accessToken)
+        console.log('accessToken !== undefined')
+        console.log(accessToken !== undefined)
+        const decoded = jwt.verify(
+          accessToken,
+          JWT_CFG.ACCESS_TOKEN_SECRET
+        )
+        console.log(decoded)
+        clientData.email = decoded.emailUser
+        clientData.role = decoded.role
+        if (decoded.role === ROLE_CFG.ADMIN)
+          io.in(clientId).emit('privateMessages', connections)
+          // socket.broadcast.to(clientId).emit('privateMessages', connections)
+      }
+    } catch (error) {
+      console.log('error')
+      console.log(error)
+    }
+    // console.table(connections.map(conn => {
+    //   return {
+    //     ...conn,
+    //     accessToken: conn.accessToken ? (conn?.accessToken?.slice(0, 4) + '...') : undefined
+    //   }
+    // })
+    // )
+    console.table(connections, ['clientId', 'email', 'role'])
+
     socket.on('disconnect', (reason) => {
       console.log(reason)
       console.log('socket id: ', socket.id)
-      const newCon = connections.filter(connection => connection.socketId !== socket.id)
+      const newCon = connections.filter(connection => connection.clientId !== clientId)
       connections = newCon
       console.info('🚀 ~ file: chat.service.js ~ line 22 ~ socket.on ~ connections', connections)
     })

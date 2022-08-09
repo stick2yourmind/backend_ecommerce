@@ -53,12 +53,12 @@ const loginUserService = async (email, password) => {
     if (!isValidPassword(password, data.password))
       throw new CustomError(STATUS.UNAUTHORIZED, 'Missing or invalid: email or password', '')
     const accessToken = jwt.sign(
-      { emailUser: data.email },
+      { emailUser: data.email, role: data.isAdmin ? ROLE_CFG.ADMIN : ROLE_CFG.USER },
       JWT_CFG.ACCESS_TOKEN_SECRET,
       { expiresIn: JWT_CFG.EXPIRES_ACCESS_TOKEN }
     )
     const refreshToken = jwt.sign(
-      { emailUser: data.email },
+      { emailUser: data.email, role: data.isAdmin ? ROLE_CFG.ADMIN : ROLE_CFG.USER },
       JWT_CFG.REFRESH_TOKEN_SECRET,
       { expiresIn: JWT_CFG.EXPIRES_REFRESH_TOKEN }
     )
@@ -123,7 +123,7 @@ const refreshLoginService = async (refreshTokenCookie) => {
     if (data.refreshToken !== refreshTokenCookie)
       throw new CustomError(STATUS.FORBIDDEN, 'Invalid refresh token', '')
     const accessToken = jwt.sign(
-      { emailUser: data.email },
+      { emailUser: data.email, role: data.isAdmin ? ROLE_CFG.ADMIN : ROLE_CFG.USER },
       JWT_CFG.ACCESS_TOKEN_SECRET,
       { expiresIn: JWT_CFG.EXPIRES_ACCESS_TOKEN }
     )
