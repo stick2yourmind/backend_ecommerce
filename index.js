@@ -6,8 +6,22 @@ const corsOptions = require('./utils/cors/cors.utils')
 const credentials = require('./middleware/cors.middleware')
 const cookieParser = require('cookie-parser')
 const path = require('path')
+const { Server: HttpServer } = require('http')
+const { Server: IOServer } = require('socket.io')
+const ioConnection = require('./services/chat/chat.service')
 
 const app = express()
+
+const httpServer = new HttpServer(app)
+// SocketIo instance
+const io = new IOServer(httpServer, {
+  cors: {
+    methods: ['GET', 'POST'],
+    origin: CONFIG.ALLOWED_ORIGINS
+  }
+})
+// Start SocketIo service
+ioConnection(io)
 
 // App middlewares
 // Middleware to handle JSON
@@ -29,7 +43,7 @@ app.use(cookieParser())
 // Routes
 app.use('/', appRouter)
 
-const server = app.listen(CONFIG.PORT, CONFIG.HOST, () => {
+const server = httpServer.listen(CONFIG.PORT, CONFIG.HOST, () => {
   console.log(`Server is up and running on port => ${CONFIG.PORT}`)
 })
 
