@@ -42,11 +42,9 @@ const ioConnection = (io) => {
         console.log(decoded)
         clientData.email = decoded.emailUser
         clientData.role = decoded.role
-        if (decoded.role === ROLE_CFG.ADMIN) {
-          io.in(clientId).emit('privateMessages', { connections })
-          // socket.broadcast.to(clientId).emit('privateMessages', connections)
+        if (decoded.role === ROLE_CFG.ADMIN)
           adminRoom = clientId
-        }
+          // socket.broadcast.to(clientId).emit('privateMessages', connections)
       }
     } catch (error) {
       console.log('error')
@@ -59,6 +57,7 @@ const ioConnection = (io) => {
     //   }
     // })
     // )
+    io.in(adminRoom).emit('connections', { connections })
     console.table(connections, ['clientId', 'email', 'role'])
 
     socket.on('disconnect', (reason) => {
