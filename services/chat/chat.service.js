@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken')
 const JWT_CFG = require('../../config/jwt.config')
 const ROLE_CFG = require('../../config/roles.config')
 let connections = []
-
+let adminRoom
 const ioConnection = (io) => {
   io.on('connection', socket => {
     const clientId = socket.handshake.query.clientId
@@ -24,7 +24,10 @@ const ioConnection = (io) => {
     })
     socket.on('privateMessages', data => {
       console.log(data)
-      socket.broadcast.to(data.room).emit('privateMessages', data.msg)
+      if (clientData.role === ROLE_CFG.ADMIN)
+        socket.broadcast.to(data.room).emit('privateMessages', { msg: data.msg, systemResponse: true })
+      else
+        socket.broadcast.to(adminRoom).emit('privateMessages', { clientId, msg: data.msg, systemResponse: false })
     })
 
     try {
@@ -39,9 +42,11 @@ const ioConnection = (io) => {
         console.log(decoded)
         clientData.email = decoded.emailUser
         clientData.role = decoded.role
-        if (decoded.role === ROLE_CFG.ADMIN)
-          io.in(clientId).emit('privateMessages', connections)
+        if (decoded.role === ROLE_CFG.ADMIN) {
+          io.in(clientId).emit('privateMessages', { connections })
           // socket.broadcast.to(clientId).emit('privateMessages', connections)
+          adminRoom = clientId
+        }
       }
     } catch (error) {
       console.log('error')
@@ -58,10 +63,10 @@ const ioConnection = (io) => {
 
     socket.on('disconnect', (reason) => {
       console.log(reason)
-      console.log('socket id: ', socket.id)
+      // console.log('socket id: ', socket.id)
       const newCon = connections.filter(connection => connection.clientId !== clientId)
       connections = newCon
-      console.info('🚀 ~ file: chat.service.js ~ line 22 ~ socket.on ~ connections', connections)
+      // console.info('🚀 ~ file: chat.service.js ~ line 22 ~ socket.on ~ connections', connections)
     })
   })
 }
