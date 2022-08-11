@@ -10,6 +10,7 @@ const CONFIG = {
     process.env.ALLOWED_ORIGIN_WS
   ],
   HOST: process.env.HOST,
+  MODE: process.env.NODE_ENV,
   PORT: process.env.PORT,
   USER_COOKIES_EXPIRES: process.env.EXPIRES_USER_COOKIE_MILISECONDS
 }

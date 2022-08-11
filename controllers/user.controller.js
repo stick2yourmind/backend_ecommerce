@@ -24,10 +24,22 @@ const loginUser = async (req, res, next) => {
     const { email, password } = req.body
     const loginMsg = await loginUserService(email, password)
     const { refreshToken, ...data } = loginMsg
-    res.cookie('refreshToken', refreshToken,
-      { httpOnly: true, maxAge: JWT_CFG.EXPIRES_REFRESH_TOKEN_MILLISECONDS })
-    res.cookie('user', data._id,
-      { httpOnly: true, maxAge: CONFIG.USER_COOKIES_EXPIRES })
+    if (CONFIG.MODE === 'production') {
+      res.cookie('refreshToken', refreshToken,
+        {
+          httpOnly: true,
+          maxAge: JWT_CFG.EXPIRES_REFRESH_TOKEN_MILLISECONDS,
+          sameSite: 'None',
+          secure: true
+        })
+      res.cookie('user', data._id,
+        { httpOnly: true, maxAge: CONFIG.USER_COOKIES_EXPIRES, sameSite: 'None', secure: true })
+    } else {
+      res.cookie('refreshToken', refreshToken,
+        { httpOnly: true, maxAge: JWT_CFG.EXPIRES_REFRESH_TOKEN_MILLISECONDS })
+      res.cookie('user', data._id,
+        { httpOnly: true, maxAge: CONFIG.USER_COOKIES_EXPIRES })
+    }
     const response = apiSuccessResponse(data, STATUS.OK)
     return res.status(STATUS.OK).json(response)
   } catch (error) {
@@ -41,9 +53,9 @@ const logoutUser = async (req, res, next) => {
     const userCookie = req?.cookies?.user
     const logoutMsg = await logoutUserService({ refreshTokenCookie, userCookie })
     res.clearCookie('refreshToken',
-      { httpOnly: true, maxAge: JWT_CFG.EXPIRES_REFRESH_TOKEN_MILLISECONDS })
+      { SameSite: 'None', httpOnly: true, maxAge: JWT_CFG.EXPIRES_REFRESH_TOKEN_MILLISECONDS })
     res.clearCookie('user',
-      { httpOnly: true, maxAge: CONFIG.USER_COOKIES_EXPIRES })
+      { SameSite: 'None', httpOnly: true, maxAge: CONFIG.USER_COOKIES_EXPIRES })
     const response = apiSuccessResponse({ logout: logoutMsg }, STATUS.OK)
     return res.status(STATUS.OK).json(response)
   } catch (error) {
@@ -57,7 +69,7 @@ const refreshLogin = async (req, res, next) => {
     const loginMsg = await refreshLoginService(refreshTokenCookie)
     const { refreshToken, ...data } = loginMsg
     res.cookie('refreshToken', refreshToken,
-      { httpOnly: true, maxAge: JWT_CFG.EXPIRES_REFRESH_TOKEN_MILLISECONDS })
+      { SameSite: 'None', httpOnly: true, maxAge: JWT_CFG.EXPIRES_REFRESH_TOKEN_MILLISECONDS })
     const response = apiSuccessResponse(data, STATUS.OK)
     return res.status(STATUS.OK).json(response)
   } catch (error) {

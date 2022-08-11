@@ -2,8 +2,8 @@ const { apiSuccessResponse } = require('../utils/api.utils')
 const STATUS = require('../utils/constants/httpStatus.constant')
 const {
   createOrderService,
-  deleteOrderService,
   finishOrderService,
+  deleteOrderService,
   getAllOrderService,
   getOrderService
 } = require('../services/order/order.service')
