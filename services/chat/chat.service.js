@@ -66,6 +66,7 @@ const ioConnection = (io) => {
       const newCon = connections.filter(connection => connection.clientId !== clientId)
       connections = newCon
       // console.info('🚀 ~ file: chat.service.js ~ line 22 ~ socket.on ~ connections', connections)
+      io.in(adminRoom).emit('connections', { connections })
     })
   })
 }
